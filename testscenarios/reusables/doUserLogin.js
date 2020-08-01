@@ -1,5 +1,6 @@
 const loginPageObjs = require('../../pageobjects/loginPageObjects');
 const loginAssertionData = require('../../utils/dataProvider/loginpagedata');
+const utilS = require('../../utils/clientScripts');
 
 module.exports.doLogin =  (loginEnv) => {
     it('User should verify the heading and be able to login into the application', () => {   
@@ -14,5 +15,7 @@ module.exports.doLogin =  (loginEnv) => {
         loginPageObjs.userPassword.setValue(pass);
         loginPageObjs.loginButton.click();
         browser.pause(3000); //lazy load of application 
+        utilS.waitforpageLoading();
+        utilS.waitTillAlertDisable();
     });
 }

@@ -22,8 +22,9 @@ module.exports.waitTillAlertDisable = () =>{
    browser.waitUntil(() =>
    $('.alert__inner').isDisplayed() === false,
       {
-         timeout: 30000,
+         timeout: 50000,
          timeoutMsg: 'Alert timeout expired'
       }
    );
+   browser.pause(1000);
 }
