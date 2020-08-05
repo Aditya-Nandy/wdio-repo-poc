@@ -5,25 +5,24 @@ const allureReporter = require('@wdio/allure-reporter').default;
 
 
 /*===================== Set globals here ============================== */
-const Env = process.env.ENV;        // set ENV=stage && npx wdio --spec=login.js
-let Debug = process.env.DEBUG === 'true';   //set ENV=stage&& set DEBUG=true&& npx wdio
+const Env = process.env.ENV;        // set ENV=stage&& npx wdio --spec=login.js
+const Debug = process.env.DEBUG === 'true';   //set ENV=stage&& set DEBUG=true&& npx wdio
 console.log(`Debug mode is set: ${Debug}`);
-const singleTestTimeOut = Debug ? 999999 : 60000;
-const generalElementTimeout = 20000;
+const singleTestTimeOut = Debug ? 999999 : 120000;
+const generalElementTimeout = 30000;
 const connectionLostTimeout = 60000;
 const retryTestCount = 0;
-const threads = 3;
+var threads = 2;
 var setCapabilities= [];
-
+const Browser = process.env.BROWSER;    //set ENV=stage&& set BROWSER=Edge&& npx wdio
+console.log(`Browser is set: ${Browser}`);
 /*===================== Set browser capabilities here ============================== */
-
-
 
 
 const allCapabilities  = 
 [
     {
-        maxInstances: threads,
+        maxInstances: 5,
         browserName: 'chrome',
         acceptInsecureCerts: true,
         'goog:chromeOptions': {
@@ -32,6 +31,10 @@ const allCapabilities  =
             // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
             // args: ['--headless', '--disable-gpu'],
         }
+    },
+    {
+        browserName: 'MicrosoftEdge',
+        maxInstances: 2
     }
 ]
 
@@ -43,15 +46,28 @@ else{
     envData.Env = Env;
     console.log("Environment is set: "+envData.Env);
 }
-if(Debug){
-    setCapabilities.push(allCapabilities[0]); // set to chrome
+
+if(!Browser || Browser.toLowerCase() === 'chrome'){
+    setCapabilities.push(allCapabilities[0]);
 }
-else{
-    setCapabilities = allCapabilities;
+else if(Browser.toLowerCase() === 'edge'){
+    setCapabilities.push(allCapabilities[1]);
+    threads = 2;// MAX
+}
+else if(Browser.toLowerCase() === 'ie'){
+    setCapabilities.push(allCapabilities[2]); 
+    threads = 1;// MAX
+}
+else if(Browser.toLowerCase() === 'all'){
+    setCapabilities = allCapabilities; // set to all
+    threads = 2;  // MAX
 }
 
+
+
+
 exports.config = {
-    port: 5555,
+    port: 17556,
     path: '/',
     runner: 'local',
     specs: [
@@ -72,12 +88,13 @@ exports.config = {
     ],
 
     maxInstances: threads,
-    services: ['chromedriver'],
+    services: ['chromedriver','edgedriver'],
     capabilities: setCapabilities,
     
     // Define all options that are relevant for the WebdriverIO instance here
     // Level of logging verbosity: trace | debug | info | warn | error | silent
-    logLevel: 'error',
+    logLevel: 'info',
+    outputDir: 'logs',
     //
     // Set specific log levels per logger
     // loggers:
